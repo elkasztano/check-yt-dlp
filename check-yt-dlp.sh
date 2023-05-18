@@ -4,7 +4,7 @@
 
 if ! [ -x "$(command -v sha256sum)" ]
 then
-	echo "command sha256sum not found"
+	echo "sha256sum not in PATH - exiting" >&2
 	exit 1
 fi
 
@@ -15,7 +15,7 @@ file=$(command -v yt-dlp)
 
 if [[ -z $file ]]
 then
-	echo -ne "yt-dlp not found. Maybe not in \$PATH ?\n"
+	echo "yt-dlp not in PATH - exiting" >&2
 	exit 1
 fi
 
@@ -27,7 +27,7 @@ checksum=$(wget -qO- "https://github.com/yt-dlp/yt-dlp/releases/latest/download/
 
 if [[ -z $checksum ]]
 then
-	echo "String is empty."
+	echo "unable to retrieve checksum from github - exiting" >&2
 	exit 1
 fi
 
@@ -37,15 +37,15 @@ testsum=$(sha256sum $file | cut -d ' ' -f 1)
 
 # output checksums to console
 
-echo "github: $(tput setaf 4)$checksum$(tput sgr 0)"
+echo -ne "github: \x1b[0;1;34m$checksum\x1b[0m\n"
 
-echo -e "local:  $(tput setaf 5)$testsum$(tput sgr 0)\n"
+echo -ne "local:  \x1b[0;1;33m$testsum\x1b[0m\n"
 
 # check if checksums are equal
 
 if [[ "$checksum" != "$testsum" ]]
 then
-echo -ne "sha256 not equal\nmaybe yt-dlp has been updated or the local file is corrupted"
+echo -ne "sha256 \x1b[0;1mnot equal\x1b[0m\nmaybe yt-dlp has been updated or the local file is corrupted\n"
 exit 0
 else
 echo "sha256 OK"
